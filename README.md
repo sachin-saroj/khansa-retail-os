@@ -10,9 +10,20 @@ Welcome to **Khansa** (formerly Kirana OS) — an ultra-premium, full-stack POS 
 
 ---
 
-## 📸 Platform Showcase
+## 🔥 Enterprise-Grade Features
 
-*(Use your local system to take high-res screenshots of your localhost:5173 pages and save them to `assets/screenshots/` to display them here!)*
+Beyond just basic billing, Khansa is packed with engineering details usually reserved for top-tier enterprise SaaS:
+
+*   🌗 **Automated Dark Mode Engine**: Built-in `ThemeContext` that flawlessly shifts the entire "Khansa" design system—from warm creamy whites to deep slate blacks—without breaking contrast or typography rules.
+*   🌍 **Native Multilingual UI**: Localized for Indian shops with built-in `LanguageContext` supporting instant toggles between English and Hindi, ensuring accessibility for all staff members.
+*   📊 **Smart Udhari (Credit) Ledger**: Ditch the physical notebooks. Track customer debts dynamically with auto-calculated net balances and visual Danger/Success indicators.
+*   📉 **Predictive Inventory**: Zero-noise, dense tabular inventory with rigorous mathematical boundaries. Items dipping below the "Low Stock Limit" instantly trigger dashboard alerts.
+*   🧾 **Precision Rapid-Billing**: Split-pane workstation built for speed. Select Udhari, add items to cart, compute taxes/profit, and generate print-ready PDFs in seconds.
+*   📈 **GST-Ready CSV Exports**: Instantly dump your daily/monthly sales into an explicitly formatted CSV designed for easy import into Tally or direct CA handoffs.
+
+---
+
+## 📸 Platform Showcase
 
 ### 1. The Command Center (Dashboard)
 ![Dashboard](./assets/screenshots/dashboard.png)
@@ -40,19 +51,17 @@ Welcome to **Khansa** (formerly Kirana OS) — an ultra-premium, full-stack POS 
 
 ---
 
-## 🛠️ Core Features
+## 🚀 Architecture & Tech Stack
 
-- **Precision Billing** — Auto-calculating invoices, easy PDF rendering, and instant credit tracking.
-- **Dynamic Inventory** — Comprehensive buy/sell tracking with automated "Low Stock" indicators.
-- **Smart Udhari System** — A structural column-grid style ledger to display customer profiles and exact balance histories.
-- **Bespoke UI Design** — Powered by `DM Serif Display` and `DM Mono` for an uncompromising, professional visual identity.
+Khansa leverages a robust, decoupled architecture capable of scaling across multiple shop instances.
 
-## 🚀 Tech Stack
-
-- **Frontend:** React + Vite + Tailwind CSS (Custom "Khansa" Design System Variables)
-- **Backend:** Node.js + Express.js
-- **Database:** PostgreSQL (with `pg` pooling)
-- **Security:** JWT (Access & Refresh token strategies) and Bcrypt hashing
+- **Frontend Core:** React, Vite, React Router DOM
+- **State Management:** Custom Context APIs (`Auth`, `Theme`, `Language`)
+- **Styling:** Tailwind CSS mapped to Bespoke "Khansa" Variables (`DM Serif Display`, `DM Mono`)
+- **Backend API:** Node.js, Express.js
+- **Database:** PostgreSQL (with heavily optimized `pg` connection pooling)
+- **Security:** Hardened JWT Auth (Access & Refresh tokens), Bcrypt password hashing
+- **Data Seed:** Integrated 60-day random-walk mathematical generation script for flawless demo deployments.
 
 ---
 
