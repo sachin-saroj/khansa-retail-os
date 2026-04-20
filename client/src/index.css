@@ -1,0 +1,156 @@
+@import "tailwindcss";
+
+/* ============================================
+   KIRANA OS — Strict Design System
+   ============================================ */
+
+@theme {
+  --color-bg: #F5F0E8;
+  --color-surface: #FFFFFF;
+  --color-primary-dark: #1C1410;
+  --color-gold: #C9A227;
+  --color-muted: #8B7355;
+  --color-danger: #C0392B;
+  --color-warning: #E67E22;
+  --color-success: #27AE60;
+  
+  --font-sans: 'DM Sans', sans-serif;
+  --font-serif: 'DM Serif Display', serif;
+  --font-mono: 'DM Mono', monospace;
+}
+
+/* Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg);
+  color: var(--color-primary-dark);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+  font-weight: normal;
+}
+
+.font-serif { font-family: var(--font-serif); }
+.font-mono { font-family: var(--font-mono); }
+.font-sans { font-family: var(--font-sans); }
+
+/* Components */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 24px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: var(--color-gold);
+  color: var(--color-primary-dark);
+}
+
+.btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--color-primary-dark);
+  border: 1px solid rgba(28,20,16,0.2);
+}
+
+.btn-outline:hover:not(:disabled) {
+  background-color: rgba(28,20,16,0.05);
+}
+
+/* Stat Cards */
+.stat-card {
+  background-color: var(--color-surface);
+  border: 1px solid rgba(28,20,16,0.08);
+  border-radius: 10px;
+  padding: 24px;
+}
+
+/* Modals Faux-Viewport */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(28,20,16,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 24px;
+}
+
+.modal-content {
+  background-color: var(--color-surface);
+  border-radius: 10px;
+  width: 100%;
+  max-width: 500px;
+  min-height: 500px;
+  padding: 32px;
+  border: 1px solid rgba(28,20,16,0.08);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Form Inputs */
+.input-field {
+  width: 100%;
+  padding: 12px 16px;
+  background-color: var(--color-surface);
+  border: 1px solid rgba(28,20,16,0.2);
+  border-radius: 6px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--color-primary-dark);
+  transition: border-color 0.2s ease;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--color-gold);
+}
+
+.input-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--color-muted);
+  margin-bottom: 8px;
+}
+
+/* Utility Animations */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
