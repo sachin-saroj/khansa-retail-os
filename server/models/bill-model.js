@@ -120,7 +120,10 @@ const BillModel = {
 
   findAll: async (userId, limit = 20, offset = 0) => {
     const res = await pool.query(`
-      SELECT b.*, c.name as customer_name
+      SELECT 
+        b.*, 
+        c.name as customer_name,
+        COUNT(*) OVER() AS total_count
       FROM bills b
       LEFT JOIN customers c ON b.customer_id = c.id
       WHERE b.user_id = $1
@@ -128,10 +131,16 @@ const BillModel = {
       LIMIT $2 OFFSET $3
     `, [userId, limit, offset]);
     
-    const countRes = await pool.query('SELECT COUNT(*) FROM bills WHERE user_id = $1', [userId]);
+    let total = 0;
+    if (res.rows.length > 0) {
+      total = parseInt(res.rows[0].total_count, 10);
+      // Clean up the aggregate column so we don't return it with bill data
+      res.rows.forEach(row => delete row.total_count);
+    }
+
     return {
       bills: res.rows,
-      total: parseInt(countRes.rows[0].count, 10)
+      total
     };
   },
 

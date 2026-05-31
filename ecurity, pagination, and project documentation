@@ -1,0 +1,82 @@
+[1mdiff --git a/server/controllers/auth-controller.js b/server/controllers/auth-controller.js[m
+[1mindex a6d2f11..e24dc5e 100644[m
+[1m--- a/server/controllers/auth-controller.js[m
+[1m+++ b/server/controllers/auth-controller.js[m
+[36m@@ -184,9 +184,9 @@[m [mconst login = async (req, res) => {[m
+ // POST /api/auth/refresh[m
+ const refresh = async (req, res) => {[m
+   try {[m
+[31m-    const token = req.cookies.refreshToken;[m
+[32m+[m[32m    const oldRefreshToken = req.cookies.refreshToken;[m
+ [m
+[31m-    if (!token) {[m
+[32m+[m[32m    if (!oldRefreshToken) {[m
+       return res.status(401).json({[m
+         success: false,[m
+         data: null,[m
+[36m@@ -197,7 +197,7 @@[m [mconst refresh = async (req, res) => {[m
+     // Verify JWT signature[m
+     let decoded;[m
+     try {[m
+[31m-      decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);[m
+[32m+[m[32m      decoded = jwt.verify(oldRefreshToken, process.env.JWT_REFRESH_SECRET);[m
+     } catch (err) {[m
+       return res.status(401).json({[m
+         success: false,[m
+[36m@@ -207,7 +207,7 @@[m [mconst refresh = async (req, res) => {[m
+     }[m
+ [m
+     // Check token hash in DB — must exist and not be revoked[m
+[31m-    const tokenHash = hashToken(token);[m
+[32m+[m[32m    const tokenHash = hashToken(oldRefreshToken);[m
+     const result = await db.query([m
+       `SELECT id FROM refresh_tokens[m
+        WHERE token_hash = $1 AND user_id = $2 AND revoked = FALSE AND expires_at > NOW()`,[m
+[36m@@ -218,10 +218,16 @@[m [mconst refresh = async (req, res) => {[m
+       return res.status(401).json({[m
+         success: false,[m
+         data: null,[m
+[31m-        message: 'Refresh token revoked or expired'[m
+[32m+[m[32m        message: 'Refresh token revoked or expired / Token reuse detected'[m
+       });[m
+     }[m
+ [m
+[32m+[m[32m    // ROTATION: Revoke old refresh token[m
+[32m+[m[32m    await db.query([m
+[32m+[m[32m      'UPDATE refresh_tokens SET revoked = TRUE WHERE token_hash = $1',[m
+[32m+[m[32m      [tokenHash][m
+[32m+[m[32m    );[m
+[32m+[m
+     // Fetch user info for new access token[m
+     const userResult = await db.query([m
+       'SELECT id, shop_name, owner_name, phone FROM users WHERE id = $1',[m
+[36m@@ -237,7 +243,19 @@[m [mconst refresh = async (req, res) => {[m
+     }[m
+ [m
+     const user = userResult.rows[0];[m
+[31m-    const accessToken = generateAccessToken(user);[m
+[32m+[m[32m    const newAccessToken = generateAccessToken(user);[m
+[32m+[m[32m    const newRefreshToken = generateRefreshToken(user);[m
+[32m+[m[32m    const newHash = hashToken(newRefreshToken);[m
+[32m+[m
+[32m+[m[32m    // Store new refresh token hash in DB[m
+[32m+[m[32m    await db.query([m
+[32m+[m[32m      `INSERT INTO refresh_tokens (user_id, token_hash, expires_at)[m
+[32m+[m[32m       VALUES ($1, $2, NOW() + INTERVAL '7 days')`,[m
+[32m+[m[32m      [user.id, newHash][m
+[32m+[m[32m    );[m
+[32m+[m
+[32m+[m[32m    // Set new refresh token as httpOnly cookie[m
+[32m+[m[32m    setRefreshCookie(res, newRefreshToken);[m
+ [m
+     return res.status(200).json({[m
+       success: true,[m
+[36m@@ -248,7 +266,7 @@[m [mconst refresh = async (req, res) => {[m
+           owner_name: user.owner_name,[m
+           phone: user.phone[m
+         },[m
+[31m-        accessToken[m
+[32m+[m[32m        accessToken: newAccessToken[m
+       },[m
+       message: null[m
+     });[m

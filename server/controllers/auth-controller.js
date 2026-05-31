@@ -184,9 +184,9 @@ const login = async (req, res) => {
 // POST /api/auth/refresh
 const refresh = async (req, res) => {
   try {
-    const token = req.cookies.refreshToken;
+    const oldRefreshToken = req.cookies.refreshToken;
 
-    if (!token) {
+    if (!oldRefreshToken) {
       return res.status(401).json({
         success: false,
         data: null,
@@ -197,7 +197,7 @@ const refresh = async (req, res) => {
     // Verify JWT signature
     let decoded;
     try {
-      decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+      decoded = jwt.verify(oldRefreshToken, process.env.JWT_REFRESH_SECRET);
     } catch (err) {
       return res.status(401).json({
         success: false,
@@ -207,7 +207,7 @@ const refresh = async (req, res) => {
     }
 
     // Check token hash in DB — must exist and not be revoked
-    const tokenHash = hashToken(token);
+    const tokenHash = hashToken(oldRefreshToken);
     const result = await db.query(
       `SELECT id FROM refresh_tokens
        WHERE token_hash = $1 AND user_id = $2 AND revoked = FALSE AND expires_at > NOW()`,
@@ -218,9 +218,15 @@ const refresh = async (req, res) => {
       return res.status(401).json({
         success: false,
         data: null,
-        message: 'Refresh token revoked or expired'
+        message: 'Refresh token revoked or expired / Token reuse detected'
       });
     }
+
+    // ROTATION: Revoke old refresh token
+    await db.query(
+      'UPDATE refresh_tokens SET revoked = TRUE WHERE token_hash = $1',
+      [tokenHash]
+    );
 
     // Fetch user info for new access token
     const userResult = await db.query(
@@ -237,7 +243,19 @@ const refresh = async (req, res) => {
     }
 
     const user = userResult.rows[0];
-    const accessToken = generateAccessToken(user);
+    const newAccessToken = generateAccessToken(user);
+    const newRefreshToken = generateRefreshToken(user);
+    const newHash = hashToken(newRefreshToken);
+
+    // Store new refresh token hash in DB
+    await db.query(
+      `INSERT INTO refresh_tokens (user_id, token_hash, expires_at)
+       VALUES ($1, $2, NOW() + INTERVAL '7 days')`,
+      [user.id, newHash]
+    );
+
+    // Set new refresh token as httpOnly cookie
+    setRefreshCookie(res, newRefreshToken);
 
     return res.status(200).json({
       success: true,
@@ -248,7 +266,7 @@ const refresh = async (req, res) => {
           owner_name: user.owner_name,
           phone: user.phone
         },
-        accessToken
+        accessToken: newAccessToken
       },
       message: null
     });
