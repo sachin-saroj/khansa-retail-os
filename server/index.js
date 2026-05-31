@@ -15,6 +15,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
+const { authLimiter } = require('./middleware/rate-limiter');
 
 const authRoutes = require('./routes/auth-routes');
 const productRoutes = require('./routes/product-routes');
@@ -30,7 +31,7 @@ const PORT = process.env.PORT || 5000;
 // MIDDLEWARE STACK
 // ============================================
 app.use(helmet());
-app.use(morgan('dev'));
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 
@@ -59,7 +60,7 @@ app.use(cors({
 // ============================================
 // ROUTES
 // ============================================
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/bills', billRoutes);
 app.use('/api/customers', customerRoutes);

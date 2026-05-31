@@ -14,7 +14,12 @@ if (process.env.NODE_ENV === 'production') {
   console.log(`DATABASE_URL configured: ${!!process.env.DATABASE_URL}`);
 }
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL || 'postgres://postgres:postgres123@localhost:5432/kiranaos' });
+if (!process.env.DATABASE_URL) {
+  console.error('ERROR: DATABASE_URL is missing. Please configure it in your .env file.');
+  process.exit(1);
+}
+
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 async function seed() {
   try {

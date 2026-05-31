@@ -1,25 +1,25 @@
 <div align="center">
   <img src="./client/public/logo.png" alt="Khansa Logo" width="120" />
-  <h1>Khansa: Premium Retail OS</h1>
-  <p><strong>Next-Gen POS & Ledger Management System for Precision Retail</strong></p>
+  <h1>Khansa Retail OS</h1>
+  <p><strong>POS & Ledger Management System for Retail</strong></p>
 </div>
 
 <br />
 
-Welcome to **Khansa** (formerly Kirana OS) — an ultra-premium, full-stack POS and Inventory management software explicitly engineered for local businesses that refuse to compromise on design. We stripped away the clunky ERP bloat, purged generic SaaS elements, and delivered a highly refined "Luxury Editorial" user experience built on React and Node.js.
+Welcome to **Khansa** (formerly Kirana OS) — a full-stack Point of Sale (POS) and Inventory management software engineered for local businesses. Khansa is designed to be lightweight and efficient, providing essential retail management tools using React and Node.js.
 
 ---
 
-## 🔥 Features
+## ⚙️ Core Features
 
-Beyond just basic billing, Khansa is packed with engineering details usually reserved for top-tier enterprise SaaS:
+Khansa provides the core features required for daily retail operations:
 
-*   🌗 **Automated Dark Mode Engine**: Built-in `ThemeContext` flawlessly shifts the design system—from warm creamy whites to deep slate blacks—without breaking contrast or typography rules.
-*   🌍 **Native Multilingual UI**: Localized with a built-in `LanguageContext` supporting instant toggles between English and Hindi, ensuring accessibility for all staff members.
-*   📊 **Smart Udhari (Credit) Ledger**: Ditch the physical notebooks. Track customer debts dynamically with auto-calculated net balances and visual indicators.
-*   📉 **Predictive Inventory**: Zero-noise, dense tabular inventory with rigorous mathematical boundaries. Items dipping below the "Low Stock Limit" instantly trigger dashboard alerts.
-*   🧾 **Precision Rapid-Billing**: Split-pane workstation built for speed. Select Udhari, add items to cart, compute taxes/profit, and generate print-ready PDFs in seconds.
-*   📈 **GST-Ready Exports**: Instantly dump your daily/monthly sales into an explicitly formatted CSV designed for easy import into Tally or direct CA handoffs.
+*   🌗 **Dark Mode Support**: Built-in `ThemeContext` that shifts the user interface between light and dark themes while maintaining accessibility and contrast.
+*   🌍 **Multilingual UI**: Localized with a built-in `LanguageContext` supporting toggles between English and Hindi for staff accessibility.
+*   📊 **Customer Credit Ledger**: Track customer debts dynamically with auto-calculated net balances and visual status indicators.
+*   📉 **Inventory Alerts**: Tabular inventory tracking with defined limits. Items dipping below the "Low Stock Limit" trigger dashboard alerts.
+*   🧾 **Split-Pane Billing**: Interface designed for checkout speed. Select customers, add items to cart, compute taxes/profit, and generate PDFs.
+*   📈 **CSV Exports**: Export daily/monthly sales into an explicitly formatted CSV designed for standard accounting import.
 
 ---
 
@@ -75,7 +75,7 @@ Get Khansa running locally in under 5 minutes:
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/your-username/khansa-retail-os.git
+git clone https://github.com/sachin-saroj/khansa-retail-os.git
 cd khansa-retail-os
 ```
 
