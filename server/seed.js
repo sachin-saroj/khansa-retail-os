@@ -2,6 +2,18 @@ const { Pool } = require('pg');
 require('dotenv').config();
 const bcrypt = require('bcryptjs');
 
+if (process.env.NODE_ENV === 'production') {
+  console.warn('====================================================');
+  console.warn(' FATAL WARNING ');
+  console.warn(' Cannot run seed.js in production environments.');
+  console.warn(' This script DELETES ALL DATA and recreates records.');
+  console.warn('====================================================');
+  process.exit(1);
+} else {
+  console.log(`Current NODE_ENV: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`DATABASE_URL configured: ${!!process.env.DATABASE_URL}`);
+}
+
 const pool = new Pool({ connectionString: process.env.DATABASE_URL || 'postgres://postgres:postgres123@localhost:5432/kiranaos' });
 
 async function seed() {

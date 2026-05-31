@@ -36,7 +36,21 @@ app.use(cookieParser());
 
 // CORS — allow frontend with credentials (httpOnly cookies)
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    // Allow requests without origin (e.g., Postman, curl, or server-to-server)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000'];
+    if (process.env.CLIENT_URL) {
+      allowedOrigins.push(process.env.CLIENT_URL);
+    }
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS error: Origin not allowed'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']

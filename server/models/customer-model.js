@@ -1,4 +1,4 @@
-const pool = require('../db');
+const { pool } = require('../db');
 
 const CustomerModel = {
   create: async (userId, data) => {
