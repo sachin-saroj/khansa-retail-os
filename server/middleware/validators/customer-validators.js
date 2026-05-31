@@ -13,5 +13,5 @@ exports.createCustomerValidation = [
 exports.transactionValidation = [
   body('type').isIn(['given', 'received']).withMessage('Transaction type must be given or received'),
   body('amount').isFloat({ min: 0.01 }).withMessage('Amount must be positive'),
-  body('notes').optional().trim()
+  body('note').optional().trim()
 ];

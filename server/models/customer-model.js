@@ -42,12 +42,12 @@ const CustomerModel = {
   },
 
   // Record a transaction (payment received or credit given)
-  addTransaction: async (customerId, type, amount, notes = '') => {
+  addTransaction: async (customerId, type, amount, note = '') => {
     const res = await pool.query(`
-      INSERT INTO customer_transactions (customer_id, type, amount, notes)
+      INSERT INTO customer_transactions (customer_id, type, amount, note)
       VALUES ($1, $2, $3, $4)
       RETURNING *
-    `, [customerId, type, amount, notes]);
+    `, [customerId, type, amount, note]);
     return res.rows[0];
   },
 

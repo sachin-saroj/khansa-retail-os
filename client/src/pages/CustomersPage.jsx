@@ -15,7 +15,7 @@ const CustomersPage = () => {
   
   // Forms
   const [newCustomerForm, setNewCustomerForm] = useState({ name: '', phone: '', address: '' });
-  const [paymentForm, setPaymentForm] = useState({ amount: '', notes: '' });
+  const [paymentForm, setPaymentForm] = useState({ amount: '', note: '' });
   const [paymentLoading, setPaymentLoading] = useState(false);
 
   const fetchCustomers = useCallback(async () => {
@@ -71,9 +71,9 @@ const CustomersPage = () => {
       await api.post(`/customers/${selectedCustomer.id}/transactions`, {
         type: 'received',
         amount: paymentForm.amount,
-        notes: paymentForm.notes || 'Manual Payment Received'
+        note: paymentForm.note || 'Manual Payment Received'
       });
-      setPaymentForm({ amount: '', notes: '' });
+      setPaymentForm({ amount: '', note: '' });
       openCustomerDetails(selectedCustomer);
       fetchCustomers();
     } catch (err) {

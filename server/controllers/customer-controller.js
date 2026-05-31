@@ -63,8 +63,8 @@ exports.addTransaction = async (req, res, next) => {
       });
     }
 
-    const { type, amount, notes } = req.body;
-    const transaction = await CustomerModel.addTransaction(customer.id, type, amount, notes);
+    const { type, amount, note } = req.body;
+    const transaction = await CustomerModel.addTransaction(customer.id, type, amount, note);
 
     res.status(201).json({
       success: true,

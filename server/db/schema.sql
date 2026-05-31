@@ -88,8 +88,9 @@ CREATE INDEX IF NOT EXISTS idx_bill_items_bill_id ON bill_items(bill_id);
 CREATE TABLE IF NOT EXISTS customer_transactions (
   id SERIAL PRIMARY KEY,
   customer_id INT NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
-  type VARCHAR(10) NOT NULL CHECK (type IN ('credit', 'payment')),
+  type VARCHAR(10) NOT NULL CHECK (type IN ('given', 'received')),
   amount DECIMAL(10,2) NOT NULL CHECK (amount > 0),
+  bill_id INT REFERENCES bills(id) ON DELETE SET NULL,
   note TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );

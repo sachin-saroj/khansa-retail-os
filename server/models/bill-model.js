@@ -110,7 +110,7 @@ const BillModel = {
       if (paymentMethod === 'udhari' && customerId) {
         await client.query(`
           INSERT INTO customer_transactions (customer_id, type, amount, bill_id, note)
-          VALUES ($1, 'credit', $2, $3, 'Bill Udhari')
+          VALUES ($1, 'given', $2, $3, 'Bill Udhari')
         `, [customerId, finalTotal, bill.id]);
       }
 
