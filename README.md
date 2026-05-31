@@ -172,5 +172,5 @@ You must configure the `server/.env` based on `server/.env.example`.
 ## 👨‍💻 Author
 
 Built by **Sachin** 
-*SYIT Student, S.K. College of Science & Commerce, Nerul, Navi Mumbai.*  
+*BSC-IT Student, S.K. College of Science & Commerce, Nerul, Navi Mumbai.*  
 Stack: Node.js, Express, React, PostgreSQL.
