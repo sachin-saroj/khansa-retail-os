@@ -15,7 +15,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
-const { authLimiter } = require('./middleware/rate-limiter');
+
 
 const authRoutes = require('./routes/auth-routes');
 const productRoutes = require('./routes/product-routes');
@@ -60,7 +60,7 @@ app.use(cors({
 // ============================================
 // ROUTES
 // ============================================
-app.use('/api/auth', authLimiter, authRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/bills', billRoutes);
 app.use('/api/customers', customerRoutes);

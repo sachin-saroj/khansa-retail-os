@@ -30,8 +30,8 @@ exports.getDashboardStats = async (req, res, next) => {
     const udhariRes = await pool.query(`
       WITH CustomerBalances AS (
         SELECT c.id,
-          COALESCE(SUM(CASE WHEN ct.type = 'credit' THEN ct.amount ELSE 0 END), 0) - 
-          COALESCE(SUM(CASE WHEN ct.type = 'payment' THEN ct.amount ELSE 0 END), 0) as balance 
+          COALESCE(SUM(CASE WHEN ct.type = 'given' THEN ct.amount ELSE 0 END), 0) - 
+          COALESCE(SUM(CASE WHEN ct.type = 'received' THEN ct.amount ELSE 0 END), 0) as balance 
         FROM customers c
         LEFT JOIN customer_transactions ct ON c.id = ct.customer_id
         WHERE c.user_id = $1

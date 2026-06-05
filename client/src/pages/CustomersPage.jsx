@@ -5,6 +5,10 @@ const CustomersPage = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [pagination, setPagination] = useState(null);
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
+  const [searchInput, setSearchInput] = useState('');
   
   // Modals state
   const [isNewCustomerModal, setIsNewCustomerModal] = useState(false);
@@ -21,14 +25,17 @@ const CustomersPage = () => {
   const fetchCustomers = useCallback(async () => {
     setLoading(true);
     try {
-      const { data } = await api.get('/customers');
-      setCustomers(data.data);
+      const params = new URLSearchParams({ page, limit: 20 });
+      if (search) params.append('search', search);
+      const { data } = await api.get(`/customers?${params.toString()}`);
+      setCustomers(data.data.customers);
+      setPagination(data.data.pagination);
     } catch (err) {
       setError('Failed to load Udhari book');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [page, search]);
 
   useEffect(() => {
     fetchCustomers();
@@ -101,6 +108,45 @@ const CustomersPage = () => {
         </button>
       </div>
 
+      {/* Search Bar */}
+      <div style={{ display: 'flex', gap: '8px' }}>
+        <input
+          type="text"
+          className="input-field"
+          placeholder="SEARCH BY NAME OR PHONE..."
+          value={searchInput}
+          onChange={e => setSearchInput(e.target.value)}
+          onKeyDown={e => {
+            if (e.key === 'Enter') {
+              setSearch(searchInput);
+              setPage(1);
+            }
+          }}
+          style={{ flex: 1 }}
+        />
+        <button
+          className="btn btn-outline"
+          onClick={() => {
+            setSearch(searchInput);
+            setPage(1);
+          }}
+        >
+          SEARCH
+        </button>
+        {search && (
+          <button
+            className="btn btn-outline"
+            onClick={() => {
+              setSearchInput('');
+              setSearch('');
+              setPage(1);
+            }}
+          >
+            CLEAR
+          </button>
+        )}
+      </div>
+
       {error ? (
         <div style={{ backgroundColor: 'var(--color-danger)', color: 'white', padding: '16px', fontFamily: 'var(--font-mono)', fontSize: '11px' }}>{error}</div>
       ) : loading ? (
@@ -109,35 +155,62 @@ const CustomersPage = () => {
         </div>
       ) : customers.length === 0 ? (
         <div className="stat-card" style={{ textAlign: 'center', padding: '64px' }}>
-          <p style={{ fontFamily: 'var(--font-mono)', color: 'var(--color-muted)' }}>NO CUSTOMERS FOUND.</p>
+          <p style={{ fontFamily: 'var(--font-mono)', color: 'var(--color-muted)' }}>{search ? 'NO CUSTOMERS MATCH YOUR SEARCH.' : 'NO CUSTOMERS FOUND.'}</p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
-          {customers.map(c => {
-            const balance = Number(c.balance);
-            const isDue = balance > 0;
-            return (
-              <div 
-                key={c.id} 
-                className="stat-card" 
-                style={{ borderTop: `3px solid ${isDue ? 'var(--color-danger)' : 'var(--color-success)'}`, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '8px' }}
-                onClick={() => openCustomerDetails(c)}
-              >
-                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', color: 'var(--color-primary-dark)', margin: 0, textTransform: 'uppercase' }}>{c.name}</h3>
-                <p style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '1px', color: 'var(--color-muted)' }}>
-                  {c.phone ? `TEL: ${c.phone}` : 'NO TELEPHONE'}
-                </p>
-                
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid rgba(28,20,16,0.08)' }}>
-                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--color-muted)', letterSpacing: '1px' }}>TOTAL BALANCE</p>
-                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: '24px', fontWeight: 'bold', color: isDue ? 'var(--color-danger)' : 'var(--color-success)', margin: 0 }}>
-                    {balance > 0 ? `₹${Math.abs(balance)} DUE` : balance < 0 ? `₹${Math.abs(balance)} ADV` : 'SETTLED'}
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
+            {customers.map(c => {
+              const balance = Number(c.balance);
+              const isDue = balance > 0;
+              return (
+                <div 
+                  key={c.id} 
+                  className="stat-card" 
+                  style={{ borderTop: `3px solid ${isDue ? 'var(--color-danger)' : 'var(--color-success)'}`, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '8px' }}
+                  onClick={() => openCustomerDetails(c)}
+                >
+                  <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', color: 'var(--color-primary-dark)', margin: 0, textTransform: 'uppercase' }}>{c.name}</h3>
+                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '1px', color: 'var(--color-muted)' }}>
+                    {c.phone ? `TEL: ${c.phone}` : 'NO TELEPHONE'}
                   </p>
+                  
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid rgba(28,20,16,0.08)' }}>
+                    <p style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--color-muted)', letterSpacing: '1px' }}>TOTAL BALANCE</p>
+                    <p style={{ fontFamily: 'var(--font-mono)', fontSize: '24px', fontWeight: 'bold', color: isDue ? 'var(--color-danger)' : 'var(--color-success)', margin: 0 }}>
+                      {balance > 0 ? `₹${Math.abs(balance)} DUE` : balance < 0 ? `₹${Math.abs(balance)} ADV` : 'SETTLED'}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            );
+              );
           })}
-        </div>
+          </div>
+
+          {/* Pagination Controls */}
+          {pagination && pagination.totalPages > 1 && (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginTop: '8px' }}>
+              <button
+                className="btn btn-outline"
+                disabled={!pagination.hasPrev}
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                style={{ opacity: pagination.hasPrev ? 1 : 0.4 }}
+              >
+                ← PREV
+              </button>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '1px', color: 'var(--color-muted)' }}>
+                PAGE {pagination.page} OF {pagination.totalPages} • {pagination.total} TOTAL
+              </span>
+              <button
+                className="btn btn-outline"
+                disabled={!pagination.hasNext}
+                onClick={() => setPage(p => p + 1)}
+                style={{ opacity: pagination.hasNext ? 1 : 0.4 }}
+              >
+                NEXT →
+              </button>
+            </div>
+          )}
+        </>
       )}
 
       {/* New Customer Modal */}

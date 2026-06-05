@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS customers (
   user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   name VARCHAR(100) NOT NULL,
   phone VARCHAR(15),
+  address TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
 

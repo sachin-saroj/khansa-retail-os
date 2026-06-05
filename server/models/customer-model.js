@@ -12,19 +12,52 @@ const CustomerModel = {
 
   // Get all customers with their dynamically calculated balance
   // Balance = sum of 'given' (money owed to shop) - sum of 'received' (payments made by customer)
-  findAllWithBalances: async (userId) => {
+  // Supports pagination (LIMIT/OFFSET) and search (ILIKE on name/phone)
+  findAllWithBalances: async (userId, { page = 1, limit = 20, search = '' } = {}) => {
+    const offset = (page - 1) * limit;
+
+    // Build search condition dynamically
+    const searchCondition = search
+      ? `AND (c.name ILIKE $4 OR c.phone ILIKE $4)`
+      : '';
+    const searchParam = search ? `%${search}%` : null;
+
+    const queryParams = search
+      ? [userId, limit, offset, searchParam]
+      : [userId, limit, offset];
+
     const res = await pool.query(`
       SELECT 
-        c.*, 
+        c.id,
+        c.name,
+        c.phone,
+        c.created_at,
         COALESCE(SUM(CASE WHEN ct.type = 'given' THEN ct.amount ELSE 0 END), 0) - 
-        COALESCE(SUM(CASE WHEN ct.type = 'received' THEN ct.amount ELSE 0 END), 0) as balance 
+        COALESCE(SUM(CASE WHEN ct.type = 'received' THEN ct.amount ELSE 0 END), 0) AS balance,
+        COUNT(*) OVER() AS total_count
       FROM customers c
       LEFT JOIN customer_transactions ct ON c.id = ct.customer_id
       WHERE c.user_id = $1
-      GROUP BY c.id
+        ${searchCondition}
+      GROUP BY c.id, c.name, c.phone, c.created_at
       ORDER BY c.name ASC
-    `, [userId]);
-    return res.rows;
+      LIMIT $2 OFFSET $3
+    `, queryParams);
+
+    const total = res.rows.length > 0
+      ? parseInt(res.rows[0].total_count)
+      : 0;
+
+    // Strip total_count from each row before returning
+    const customers = res.rows.map(({ total_count, ...rest }) => rest);
+
+    return {
+      customers,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    };
   },
 
   findById: async (id, userId) => {

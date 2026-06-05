@@ -70,7 +70,7 @@ const BillModel = {
         // Decrement stock
         await client.query(`
           UPDATE products 
-          SET stock_qty = stock_qty - $1, updated_at = CURRENT_TIMESTAMP 
+          SET stock_qty = stock_qty - $1 
           WHERE id = $2
         `, [item.qty, product.id]);
 

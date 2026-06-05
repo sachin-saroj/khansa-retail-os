@@ -18,10 +18,29 @@ exports.createCustomer = async (req, res, next) => {
 
 exports.getCustomers = async (req, res, next) => {
   try {
-    const customers = await CustomerModel.findAllWithBalances(req.user.id);
+    const page  = Math.max(1, parseInt(req.query.page)  || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
+    const search = (req.query.search || '').trim();
+
+    const result = await CustomerModel.findAllWithBalances(req.user.id, {
+      page,
+      limit,
+      search
+    });
+
     res.json({
       success: true,
-      data: customers,
+      data: {
+        customers: result.customers,
+        pagination: {
+          total:      result.total,
+          page:       result.page,
+          limit:      result.limit,
+          totalPages: result.totalPages,
+          hasNext:    result.page < result.totalPages,
+          hasPrev:    result.page > 1
+        }
+      },
       message: null
     });
   } catch (error) {
