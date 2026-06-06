@@ -2,6 +2,14 @@
   <img src="./client/public/logo.png" alt="Khansa Logo" width="120" />
   <h1>Khansa Retail OS</h1>
   <p><strong>POS & Ledger Management System for Retail</strong></p>
+  
+  <p>
+    <img src="https://img.shields.io/badge/version-1.0.0-blue.svg" alt="Version" />
+    <img src="https://img.shields.io/badge/node-%3E%3D%2018.0.0-brightgreen.svg" alt="Node Version" />
+    <img src="https://img.shields.io/badge/react-18.x-61dafb.svg" alt="React" />
+    <img src="https://img.shields.io/badge/postgres-15.x-336791.svg" alt="PostgreSQL" />
+    <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome" />
+  </p>
 </div>
 
 <br />
@@ -17,6 +25,7 @@ Khansa provides the core features required for daily retail operations:
 *   🌗 **Dark Mode Support**: Built-in `ThemeContext` that shifts the user interface between light and dark themes while maintaining accessibility and contrast.
 *   🌍 **Multilingual UI**: Localized with a built-in `LanguageContext` supporting toggles between English and Hindi for staff accessibility.
 *   📊 **Customer Credit Ledger**: Track customer debts dynamically with auto-calculated net balances and visual status indicators.
+*   🔍 **Smart Autocomplete**: Context-aware customer search directly integrated into the billing POS for rapid Udhari checkout.
 *   📉 **Inventory Alerts**: Tabular inventory tracking with defined limits. Items dipping below the "Low Stock Limit" trigger dashboard alerts.
 *   🧾 **Split-Pane Billing**: Interface designed for checkout speed. Select customers, add items to cart, compute taxes/profit, and generate PDFs.
 *   📈 **CSV Exports**: Export daily/monthly sales into an explicitly formatted CSV designed for standard accounting import.
@@ -137,6 +146,22 @@ You must configure the `server/.env` based on `server/.env.example`.
 *   **Customers:** `GET /api/customers`, `POST /api/customers`
 *   **Bills:** `POST /api/bills`, `GET /api/bills`
 *   **Reports:** `GET /api/reports/dashboard`, `GET /api/reports/sales`
+
+---
+
+## 🧪 Automated Testing
+
+Khansa OS includes a robust end-to-end (E2E) testing suite utilizing Puppeteer to ensure critical business logic remains intact.
+
+```bash
+# Run the complete E2E validation suite
+node test-e2e.js
+```
+The testing suite validates:
+- Core Authentication (Registration, Login, Refresh Token Rotation)
+- Route Protection & Rate Limiting
+- Customer Module (Creation, Ledger Updates)
+- Billing POS workflows (Cash & Udhari integrations)
 
 ---
 
