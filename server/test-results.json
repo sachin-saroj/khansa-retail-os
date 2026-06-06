@@ -1,0 +1,73 @@
+{
+  "phases": {
+    "Phase 2 - Authentication": {
+      "status": "PASS",
+      "registration": "PASS",
+      "logout": "PASS",
+      "protectedRoutes": "PASS",
+      "invalidLogin": "PASS",
+      "login": "PASS"
+    },
+    "Phase 3 - Customer Module": {
+      "status": "FAIL"
+    },
+    "Phase 4 - Product Module": {
+      "status": "PASS"
+    },
+    "Phase 5 - Billing Module": {
+      "status": "IN_PROGRESS"
+    },
+    "Phase 6 - Customer Ledger / Udhari": {
+      "status": "IN_PROGRESS"
+    }
+  },
+  "consoleErrors": [
+    {
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "location": {
+        "url": "http://localhost:5000/api/auth/refresh"
+      }
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "location": {
+        "url": "http://localhost:5000/api/auth/refresh"
+      }
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "location": {
+        "url": "http://localhost:5000/api/auth/refresh"
+      }
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "location": {
+        "url": "http://localhost:5000/api/auth/login"
+      }
+    }
+  ],
+  "networkFailures": [],
+  "apiFailures": [
+    {
+      "url": "http://localhost:5000/api/auth/refresh",
+      "status": 401,
+      "payload": "{\"success\":false,\"data\":null,\"message\":\"No refresh token\"}"
+    },
+    {
+      "url": "http://localhost:5000/api/auth/refresh",
+      "status": 401,
+      "payload": "{\"success\":false,\"data\":null,\"message\":\"No refresh token\"}"
+    },
+    {
+      "url": "http://localhost:5000/api/auth/refresh",
+      "status": 401,
+      "payload": "{\"success\":false,\"data\":null,\"message\":\"No refresh token\"}"
+    },
+    {
+      "url": "http://localhost:5000/api/auth/login",
+      "status": 401,
+      "payload": "{\"success\":false,\"data\":null,\"message\":\"Invalid phone or password\"}"
+    }
+  ]
+}

@@ -28,8 +28,8 @@ const CustomersPage = () => {
       const params = new URLSearchParams({ page, limit: 20 });
       if (search) params.append('search', search);
       const { data } = await api.get(`/customers?${params.toString()}`);
-      setCustomers(data.data.customers);
-      setPagination(data.data.pagination);
+      setCustomers(data.data || []);
+      setPagination(data.pagination || null);
     } catch (err) {
       setError('Failed to load Udhari book');
     } finally {

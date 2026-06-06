@@ -7,13 +7,13 @@ BEGIN;
 ALTER TABLE customer_transactions
 ADD COLUMN IF NOT EXISTS bill_id INT REFERENCES bills(id) ON DELETE SET NULL;
 
--- 2. Migrate existing transaction data to the new canonical representations
+-- 2. Drop the legacy constraint safely using default Postgres naming conventions first
+ALTER TABLE customer_transactions DROP CONSTRAINT IF EXISTS customer_transactions_type_check;
+
+-- 3. Migrate existing transaction data to the new canonical representations
 -- Maps legacy business logic ('credit'/'payment') to the new validators ('given'/'received') safely.
 UPDATE customer_transactions SET type = 'given' WHERE type = 'credit';
 UPDATE customer_transactions SET type = 'received' WHERE type = 'payment';
-
--- 3. Drop the legacy constraint safely using default Postgres naming conventions
-ALTER TABLE customer_transactions DROP CONSTRAINT IF EXISTS customer_transactions_type_check;
 
 -- 4. Apply the new stringent CHECK constraint aligned with the application API
 ALTER TABLE customer_transactions 

@@ -6,11 +6,24 @@ const { pool } = require('./index');
 
 const migrate = async () => {
   try {
-    const schemaPath = path.join(__dirname, 'schema.sql');
-    const schema = fs.readFileSync(schemaPath, 'utf-8');
+    const migrationFiles = [
+      'schema.sql',
+      'migration_001_add_bill_id.sql',
+      'migration_002_fix_transactions.sql',
+      'migration_003_add_customer_address.sql'
+    ];
 
-    console.log('Running database migration...');
-    await pool.query(schema);
+    console.log('Running database migrations...');
+    for (const file of migrationFiles) {
+      const filePath = path.join(__dirname, file);
+      if (fs.existsSync(filePath)) {
+        console.log(`Executing ${file}...`);
+        const sql = fs.readFileSync(filePath, 'utf-8');
+        await pool.query(sql);
+      } else {
+        console.warn(`Migration file ${file} not found, skipping.`);
+      }
+    }
     console.log('Migration completed successfully.');
 
     process.exit(0);

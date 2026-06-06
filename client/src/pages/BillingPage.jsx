@@ -219,15 +219,15 @@ const BillingPage = () => {
         <div>
           <label className="input-label">PAYMENT MODE</label>
           <div style={{ display: 'flex', border: '1px solid rgba(28,20,16,0.2)', borderRadius: '4px', overflow: 'hidden' }}>
-            {['cash', 'upi', 'credit'].map(mode => (
+            {[{ value: 'cash', label: 'cash' }, { value: 'upi', label: 'upi' }, { value: 'udhari', label: 'credit' }].map(mode => (
               <button 
-                key={mode}
+                key={mode.value}
                 style={{ 
-                  flex: 1, padding: '12px', border: 'none', background: paymentMethod === mode ? 'var(--color-primary-dark)' : 'transparent', color: paymentMethod === mode ? 'var(--color-surface)' : 'var(--color-primary-dark)', fontFamily: 'var(--font-mono)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', cursor: 'pointer' 
+                  flex: 1, padding: '12px', border: 'none', background: paymentMethod === mode.value ? 'var(--color-primary-dark)' : 'transparent', color: paymentMethod === mode.value ? 'var(--color-surface)' : 'var(--color-primary-dark)', fontFamily: 'var(--font-mono)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', cursor: 'pointer' 
                 }}
-                onClick={() => setPaymentMethod(mode)}
+                onClick={() => setPaymentMethod(mode.value)}
               >
-                {mode}
+                {mode.label}
               </button>
             ))}
           </div>

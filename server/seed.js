@@ -22,22 +22,25 @@ if (!process.env.DATABASE_URL) {
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 async function seed() {
+  const client = await pool.connect();
   try {
-    let res = await pool.query('SELECT * FROM users LIMIT 1');
+    await client.query('BEGIN');
+
+    let res = await client.query('SELECT * FROM users LIMIT 1');
     let user_id;
     if (res.rows.length === 0) {
       const hash = await bcrypt.hash('password123', 10);
-      res = await pool.query(`INSERT INTO users (shop_name, owner_name, phone, password_hash) VALUES ('Sharma Kirana', 'Rahul Sharma', '9999999999', $1) RETURNING id`, [hash]);
+      res = await client.query(`INSERT INTO users (shop_name, owner_name, phone, password_hash) VALUES ('Sharma Kirana', 'Rahul Sharma', '9999999999', $1) RETURNING id`, [hash]);
     }
     user_id = res.rows[0].id;
     console.log('Using User ID:', user_id);
 
-    await pool.query('DELETE FROM customer_transactions;');
-    await pool.query('DELETE FROM bill_items;');
-    await pool.query('DELETE FROM bills;');
-    await pool.query('DELETE FROM products;');
-    await pool.query('DELETE FROM customers;');
-    await pool.query('DELETE FROM bill_counters;');
+    await client.query('DELETE FROM customer_transactions;');
+    await client.query('DELETE FROM bill_items;');
+    await client.query('DELETE FROM bills;');
+    await client.query('DELETE FROM products;');
+    await client.query('DELETE FROM customers;');
+    await client.query('DELETE FROM bill_counters;');
 
     // 15-20 specific products with 5-15% margin and appropriate categories
     const rawProducts = [
@@ -65,7 +68,7 @@ async function seed() {
     for (let i=0; i<rawProducts.length; i++) {
       const p = rawProducts[i];
       const sku = `PROD-${i+1}`;
-      const inst = await pool.query(
+      const inst = await client.query(
         `INSERT INTO products (user_id, name, sku, category, buy_price, sell_price, stock_qty, low_stock_threshold) VALUES ($1, $2, $3, $4, $5, $6, $7, 5) RETURNING id`,
         [user_id, p.name, sku, p.cat, p.buy, p.sell, p.stock]
       );
@@ -83,7 +86,7 @@ async function seed() {
     
     for (let i=0; i<customerNames.length; i++) {
         const cname = customerNames[i];
-        const inst = await pool.query(
+        const inst = await client.query(
             `INSERT INTO customers (user_id, name, phone, created_at) VALUES ($1, $2, $3, NOW() - INTERVAL '30 days') RETURNING id`,
             [user_id, cname, `987654321${i}`]
         );
@@ -95,16 +98,16 @@ async function seed() {
 
     let billCounter = 0;
     
-    // Simulate last 60 days
-    for (let d = 60; d >= 1; d--) {
+    // Simulate last 15 days to speed up and keep trend graphs happy
+    for (let d = 15; d >= 1; d--) {
         const date = new Date();
         date.setDate(date.getDate() - d);
         const isSunday = date.getDay() === 0;
         
-        let dailyBills = isSunday ? Math.floor(Math.random() * (25 - 15 + 1)) + 15 : Math.floor(Math.random() * (15 - 8 + 1)) + 8;
+        let dailyBills = isSunday ? Math.floor(Math.random() * (15 - 10 + 1)) + 10 : Math.floor(Math.random() * (10 - 5 + 1)) + 5;
         
         // slight increasing trend in last 7 days
-        if (d <= 7) { dailyBills += 3; }
+        if (d <= 7) { dailyBills += 2; }
         
         let dailySeq = 0;
 
@@ -112,14 +115,14 @@ async function seed() {
             billCounter++;
             dailySeq++;
             
-            const numItems = Math.floor(Math.random() * 4) + 2; // 2 to 5 products
+            const numItems = Math.floor(Math.random() * 3) + 2; // 2 to 4 products
             let subtotal = 0;
             let profit = 0;
             const items = [];
             
             for(let j=0; j<numItems; j++) {
                 const prod = pIds[Math.floor(Math.random() * pIds.length)];
-                const qty = Math.floor(Math.random() * 3) + 1;
+                const qty = Math.floor(Math.random() * 2) + 1;
                 const lineTotal = qty * prod.sell;
                 const lineProfit = qty * (prod.sell - prod.buy);
                 subtotal += lineTotal;
@@ -131,7 +134,7 @@ async function seed() {
             const bNum = `INV-${date.toISOString().split('T')[0].replace(/-/g, '')}-${String(dailySeq).padStart(3, '0')}`;
 
             // Assign udhari randomly
-            const isUdhari = Math.random() > 0.85; 
+            const isUdhari = Math.random() > 0.80; 
             let cObj = null;
             if (isUdhari) {
                 cObj = cIds[Math.floor(Math.random() * cIds.length)];
@@ -140,7 +143,7 @@ async function seed() {
                 if (UDHARI_BALANCES[cObj.id] > 2000) cObj = null; 
             }
             
-            const billIns = await pool.query(
+            const billIns = await client.query(
                 `INSERT INTO bills (user_id, customer_id, bill_number, subtotal, discount, total, profit, is_udhari, created_at)
                  VALUES ($1, $2, $3, $4, 0, $5, $6, $7, $8) RETURNING id`,
                 [user_id, cObj ? cObj.id : null, bNum, subtotal, total, profit, !!cObj, date]
@@ -148,7 +151,7 @@ async function seed() {
             const bId = billIns.rows[0].id;
             
             for(const item of items) {
-                await pool.query(
+                await client.query(
                     `INSERT INTO bill_items (bill_id, product_id, qty, unit_price, subtotal) VALUES ($1, $2, $3, $4, $5)`,
                     [bId, item.pId, item.qty, item.sell, item.lineTotal]
                 );
@@ -156,13 +159,13 @@ async function seed() {
             
             if (cObj) {
                 UDHARI_BALANCES[cObj.id] += total;
-                await pool.query(
-                    `INSERT INTO customer_transactions (customer_id, type, amount, note, created_at) VALUES ($1, 'credit', $2, $3, $4)`,
+                await client.query(
+                    `INSERT INTO customer_transactions (customer_id, type, amount, note, created_at) VALUES ($1, 'given', $2, $3, $4)`,
                     [cObj.id, total, `Bill ${bNum}`, date]
                 );
             }
             
-            await pool.query(
+            await client.query(
                `INSERT INTO bill_counters (user_id, date, last_seq) VALUES ($1, $2, $3)
                 ON CONFLICT (user_id, date) DO UPDATE SET last_seq = $3`,
                [user_id, date.toISOString().split('T')[0], dailySeq]
@@ -175,17 +178,21 @@ async function seed() {
         if (clearedCustomerNames.includes(c.name)) {
             const bal = UDHARI_BALANCES[c.id] || 0;
             if (bal > 0) {
-                 await pool.query(
-                      `INSERT INTO customer_transactions (customer_id, type, amount, note, created_at) VALUES ($1, 'payment', $2, 'Cash Payment Full Settlement', NOW() - INTERVAL '2 days')`,
+                 await client.query(
+                      `INSERT INTO customer_transactions (customer_id, type, amount, note, created_at) VALUES ($1, 'received', $2, 'Cash Payment Full Settlement', NOW() - INTERVAL '2 days')`,
                       [c.id, bal]
                  );
             }
         }
     }
     
+    await client.query('COMMIT');
+    client.release();
     console.log('Inserted', billCounter, 'bills and adjusted pending udhari properly.');
     process.exit(0);
   } catch (err) {
+    await client.query('ROLLBACK');
+    client.release();
     console.error('Seed error:', err);
     process.exit(1);
   }
