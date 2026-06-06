@@ -13,6 +13,11 @@ const BillingPage = () => {
   const [cart, setCart] = useState([]);
   const [discount, setDiscount] = useState(0);
   const [customerName, setCustomerName] = useState('');
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [customerSearchResults, setCustomerSearchResults] = useState([]);
+  const [isSearchingCustomer, setIsSearchingCustomer] = useState(false);
+  const customerSearchTimeout = useRef(null);
+
   const [paymentMethod, setPaymentMethod] = useState('cash'); // 'cash' | 'upi' | 'credit'
   
   const [loading, setLoading] = useState(false);
@@ -38,6 +43,28 @@ const BillingPage = () => {
         console.error('Search failed', err);
       } finally {
         setIsSearching(false);
+      }
+    }, 300);
+  };
+
+  const handleCustomerSearchChange = (e) => {
+    const val = e.target.value;
+    setCustomerName(val);
+    setSelectedCustomer(null);
+    if (customerSearchTimeout.current) clearTimeout(customerSearchTimeout.current);
+    if (!val.trim()) {
+      setCustomerSearchResults([]);
+      return;
+    }
+    setIsSearchingCustomer(true);
+    customerSearchTimeout.current = setTimeout(async () => {
+      try {
+        const { data } = await api.get('/customers', { params: { search: val, limit: 5 } });
+        setCustomerSearchResults(data.data || []);
+      } catch (err) {
+        console.error('Customer search failed', err);
+      } finally {
+        setIsSearchingCustomer(false);
       }
     }, 300);
   };
@@ -94,7 +121,8 @@ const BillingPage = () => {
         total_amount: Math.round(finalTotal),
         discount: finalDiscount,
         payment_method: paymentMethod,
-        customer_name: customerName || 'Walk-in Customer'
+        customer_name: customerName || 'Walk-in Customer',
+        customer_id: selectedCustomer ? selectedCustomer.id : undefined
       };
       const { data } = await api.post('/bills', payload);
       setSuccessBill({
@@ -104,6 +132,8 @@ const BillingPage = () => {
       setCart([]);
       setDiscount(0);
       setCustomerName('');
+      setSelectedCustomer(null);
+      setCustomerSearchResults([]);
       setSearch('');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create bill. Try again.');
@@ -206,9 +236,33 @@ const BillingPage = () => {
       {/* Right Panel: Checkout */}
       <div className="stat-card" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '24px', position: 'sticky', top: '24px' }}>
         
-        <div>
+        <div style={{ position: 'relative' }}>
           <label className="input-label">CUSTOMER / PARTY NAME</label>
-          <input type="text" className="input-field" placeholder="E.g. Ramesh" value={customerName} onChange={e => setCustomerName(e.target.value)} />
+          <input 
+            type="text" 
+            className="input-field" 
+            placeholder="Search or Enter Name" 
+            value={customerName} 
+            onChange={handleCustomerSearchChange} 
+          />
+          {customerName && !selectedCustomer && (
+            <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: 'var(--color-surface)', border: '1px solid rgba(28,20,16,0.08)', zIndex: 10, maxHeight: '200px', overflowY: 'auto' }}>
+              {isSearchingCustomer ? <div style={{ padding: '16px', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--color-muted)' }}>SEARCHING...</div> :
+               customerSearchResults.length > 0 ? (
+                 <div style={{ display: 'flex', flexDirection: 'column' }}>
+                   {customerSearchResults.map(c => (
+                     <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid rgba(28,20,16,0.04)', cursor: 'pointer' }} onClick={() => { setCustomerName(c.name); setSelectedCustomer(c); }}>
+                       <div>
+                         <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 'bold' }}>{c.name}</p>
+                         <p style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--color-muted)' }}>{c.phone}</p>
+                       </div>
+                     </div>
+                   ))}
+                 </div>
+               ) : <div style={{ padding: '16px', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--color-muted)' }}>NO REGISTERED CUSTOMER FOUND</div>
+              }
+            </div>
+          )}
         </div>
 
         <div>
