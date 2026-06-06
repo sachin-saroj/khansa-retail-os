@@ -31,16 +31,11 @@ const CustomerModel = {
         c.phone,
         c.address,
         c.created_at,
-        COALESCE(SUM(
-          CASE
-            WHEN b.payment_type = 'udhari' THEN b.total
-            WHEN b.payment_type = 'udhari_payment' THEN -b.total
-            ELSE 0
-          END
-        ), 0) AS balance,
+        COALESCE(SUM(CASE WHEN ct.type = 'given' THEN ct.amount ELSE 0 END), 0) - 
+        COALESCE(SUM(CASE WHEN ct.type = 'received' THEN ct.amount ELSE 0 END), 0) AS balance,
         COUNT(*) OVER() AS total_count
       FROM customers c
-      LEFT JOIN bills b ON b.customer_id = c.id AND b.user_id = $1
+      LEFT JOIN customer_transactions ct ON c.id = ct.customer_id
       WHERE c.user_id = $1
       ${searchCondition}
       GROUP BY c.id, c.name, c.phone, c.address, c.created_at
