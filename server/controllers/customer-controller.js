@@ -30,16 +30,14 @@ exports.getCustomers = async (req, res, next) => {
 
     res.json({
       success: true,
-      data: {
-        customers: result.customers,
-        pagination: {
-          total:      result.total,
-          page:       result.page,
-          limit:      result.limit,
-          totalPages: result.totalPages,
-          hasNext:    result.page < result.totalPages,
-          hasPrev:    result.page > 1
-        }
+      data: result.customers,
+      pagination: {
+        total:      result.total,
+        page:       result.page,
+        limit:      result.limit,
+        totalPages: result.totalPages,
+        hasNext:    result.hasNextPage,
+        hasPrev:    result.hasPrevPage
       },
       message: null
     });

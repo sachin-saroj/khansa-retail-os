@@ -16,47 +16,53 @@ const CustomerModel = {
   findAllWithBalances: async (userId, { page = 1, limit = 20, search = '' } = {}) => {
     const offset = (page - 1) * limit;
 
-    // Build search condition dynamically
     const searchCondition = search
-      ? `AND (c.name ILIKE $4 OR c.phone ILIKE $4)`
+      ? `AND (c.name ILIKE $2 OR c.phone ILIKE $2)`
       : '';
-    const searchParam = search ? `%${search}%` : null;
 
-    const queryParams = search
-      ? [userId, limit, offset, searchParam]
+    const values = search
+      ? [userId, `%${search}%`, limit, offset]
       : [userId, limit, offset];
 
-    const res = await pool.query(`
-      SELECT 
+    const query = `
+      SELECT
         c.id,
         c.name,
         c.phone,
+        c.address,
         c.created_at,
-        COALESCE(SUM(CASE WHEN ct.type = 'given' THEN ct.amount ELSE 0 END), 0) - 
-        COALESCE(SUM(CASE WHEN ct.type = 'received' THEN ct.amount ELSE 0 END), 0) AS balance,
+        COALESCE(SUM(
+          CASE
+            WHEN b.payment_type = 'udhari' THEN b.total
+            WHEN b.payment_type = 'udhari_payment' THEN -b.total
+            ELSE 0
+          END
+        ), 0) AS balance,
         COUNT(*) OVER() AS total_count
       FROM customers c
-      LEFT JOIN customer_transactions ct ON c.id = ct.customer_id
+      LEFT JOIN bills b ON b.customer_id = c.id AND b.user_id = $1
       WHERE c.user_id = $1
-        ${searchCondition}
-      GROUP BY c.id, c.name, c.phone, c.created_at
+      ${searchCondition}
+      GROUP BY c.id, c.name, c.phone, c.address, c.created_at
       ORDER BY c.name ASC
-      LIMIT $2 OFFSET $3
-    `, queryParams);
+      LIMIT $${search ? 3 : 2}
+      OFFSET $${search ? 4 : 3}
+    `;
 
-    const total = res.rows.length > 0
-      ? parseInt(res.rows[0].total_count)
+    const result = await pool.query(query, values);
+
+    const total = result.rows.length > 0
+      ? parseInt(result.rows[0].total_count)
       : 0;
 
-    // Strip total_count from each row before returning
-    const customers = res.rows.map(({ total_count, ...rest }) => rest);
-
     return {
-      customers,
+      customers: result.rows.map(({ total_count, ...customer }) => customer),
       total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit)
+      page: parseInt(page),
+      limit: parseInt(limit),
+      totalPages: Math.ceil(total / limit),
+      hasNextPage: page < Math.ceil(total / limit),
+      hasPrevPage: page > 1
     };
   },
 
