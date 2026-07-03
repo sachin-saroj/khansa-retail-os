@@ -202,4 +202,5 @@ Stack: Node.js, Express, React, PostgreSQL.
 
 
 ## Changelog
+- **[#25]** Validate available stock count before inventory deduction
 - **[#23]** Fix floating-point rounding precision issues in POS totals
