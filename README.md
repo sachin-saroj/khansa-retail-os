@@ -199,3 +199,7 @@ The testing suite validates:
 Built by **Sachin** 
 *BSC-IT Student, S.K. College of Science & Commerce, Nerul, Navi Mumbai.*  
 Stack: Node.js, Express, React, PostgreSQL.
+
+
+## Changelog
+- **[#23]** Fix floating-point rounding precision issues in POS totals
