@@ -202,6 +202,7 @@ Stack: Node.js, Express, React, PostgreSQL.
 
 
 ## Changelog
+- **[#29]** Correct typographical errors in architectural documentation
 - **[#27]** Implement GSTIN verification checks in Shop setup routes
 - **[#25]** Validate available stock count before inventory deduction
 - **[#23]** Fix floating-point rounding precision issues in POS totals
