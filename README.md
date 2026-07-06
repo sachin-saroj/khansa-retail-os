@@ -202,6 +202,7 @@ Stack: Node.js, Express, React, PostgreSQL.
 
 
 ## Changelog
+- **[#57]** Document security access control policies (13)
 - **[#55]** Format log output structures (12)
 - **[#53]** Improve button hover micro-interactions (11)
 - **[#51]** Enhance validation checks for settings routing (10)
