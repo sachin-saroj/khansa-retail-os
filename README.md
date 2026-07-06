@@ -202,6 +202,7 @@ Stack: Node.js, Express, React, PostgreSQL.
 
 
 ## Changelog
+- **[#39]** Improve timeout handling for api queries (4)
 - **[#37]** Add performance telemetry logs (3)
 - **[#35]** Refactor error alerts to use inline visual banners (2)
 - **[#33]** Fix console warning in chart rendering (1)
