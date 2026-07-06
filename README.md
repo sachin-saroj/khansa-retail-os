@@ -202,6 +202,7 @@ Stack: Node.js, Express, React, PostgreSQL.
 
 
 ## Changelog
+- **[#59]** Optimize fonts loading performance (14)
 - **[#57]** Document security access control policies (13)
 - **[#55]** Format log output structures (12)
 - **[#53]** Improve button hover micro-interactions (11)
