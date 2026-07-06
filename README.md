@@ -202,6 +202,7 @@ Stack: Node.js, Express, React, PostgreSQL.
 
 
 ## Changelog
+- **[#33]** Fix console warning in chart rendering (1)
 - **[#31]** Add automated checks for base tax rates helper
 - **[#29]** Correct typographical errors in architectural documentation
 - **[#27]** Implement GSTIN verification checks in Shop setup routes
