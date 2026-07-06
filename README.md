@@ -202,6 +202,7 @@ Stack: Node.js, Express, React, PostgreSQL.
 
 
 ## Changelog
+- **[#53]** Improve button hover micro-interactions (11)
 - **[#51]** Enhance validation checks for settings routing (10)
 - **[#49]** Fix spelling typos in documentation (9)
 - **[#47]** Configure standard environment variables example (8)
