@@ -202,6 +202,7 @@ Stack: Node.js, Express, React, PostgreSQL.
 
 
 ## Changelog
+- **[#49]** Fix spelling typos in documentation (9)
 - **[#47]** Configure standard environment variables example (8)
 - **[#45]** Document Docker container layout setup (7)
 - **[#43]** Optimize index search fields in schema (6)
