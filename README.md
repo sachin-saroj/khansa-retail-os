@@ -202,6 +202,7 @@ Stack: Node.js, Express, React, PostgreSQL.
 
 
 ## Changelog
+- **[#45]** Document Docker container layout setup (7)
 - **[#43]** Optimize index search fields in schema (6)
 - **[#41]** Add test assertions for categorizations logic (5)
 - **[#39]** Improve timeout handling for api queries (4)
